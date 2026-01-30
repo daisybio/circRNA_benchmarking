@@ -7,4 +7,18 @@
 !src/util/**
 !src/preprocessing/
 !src/preprocessing/**
+!data
+!data/DEEP
+!data/DEEP/polya/
+!data/DEEP/total/
+!data/DEEP/polya/bed
+!data/DEEP/polya/bam
+!data/DEEP/polya/bed/circexplorer2
+!data/DEEP/polya/bed/circexplorer2/blacklist
+!data/DEEP/total/bed
+!data/GSE138734
+!data/GSE138734/polya/
+!data/GSE138734/total/
+!data/GSE138734/polya/bed
+!data/GSE138734/total/bed
 
