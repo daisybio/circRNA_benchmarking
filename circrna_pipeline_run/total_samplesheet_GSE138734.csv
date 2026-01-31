@@ -1,0 +1,11 @@
+sample,fastq_1,fastq_2
+01_total_RNA_AT014,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265763_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265763_2.fastq.gz
+02_total_RNA_AT015,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265779_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265779_2.fastq.gz
+03_total_RNA_AT016,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265857_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265857_2.fastq.gz
+04_total_RNA_AT018,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265871_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265871_2.fastq.gz
+05_total_RNA_AT019,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265891_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265891_2.fastq.gz
+06_total_RNA_AT020,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265967_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265967_2.fastq.gz
+07_total_RNA_AT021,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265998_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10265998_2.fastq.gz
+08_total_RNA_AT022,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10266012_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10266012_2.fastq.gz
+09_total_RNA_AT023,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10266096_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10266096_2.fastq.gz
+10_total_RNA_AT024,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10266105_1.fastq.gz,/nfs/data3/CIRCEST/data/benchmarking/NIH_data/total_fastq/SRR10266105_2.fastq.gz

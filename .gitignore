@@ -21,4 +21,10 @@
 !data/GSE138734/total/
 !data/GSE138734/polya/bed
 !data/GSE138734/total/bed
-
+!data/blacklist/
+!data/blacklist/**
+!data/rrna_gtf/
+!data/rrna_gtf/**
+!environment.yml
+!circrna_pipeline_run/
+!circrna_pipeline_run/**
