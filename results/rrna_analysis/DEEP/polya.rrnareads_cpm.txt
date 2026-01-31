@@ -1,0 +1,13 @@
+8_polyA_51_Hf04_BlEM_L001.Aligned.out.bam.polya.featurecounts.txt.summary,3655.051497487679
+10_polyA_51_Hf04_BlEM_L003.Aligned.out.bam.polya.featurecounts.txt.summary,3641.3223353011463
+1_polyA_41_Hf01_LiHe_L005.Aligned.out.bam.polya.featurecounts.txt.summary,25501.092617843853
+7_polyA_51_Hf04_BlCM_L003.Aligned.out.bam.polya.featurecounts.txt.summary,4001.6231684815857
+6_polyA_51_Hf04_BlCM_L002.Aligned.out.bam.polya.featurecounts.txt.summary,4042.5774114847277
+9_polyA_51_Hf04_BlEM_L002.Aligned.out.bam.polya.featurecounts.txt.summary,3622.8855314612906
+2_polyA_41_Hf01_LiHe_L006.Aligned.out.bam.polya.featurecounts.txt.summary,25397.320095706113
+5_polyA_51_Hf04_BlCM_L001.Aligned.out.bam.polya.featurecounts.txt.summary,4029.1919470315806
+12_polyA_51_Hf04_BlTN_L002.Aligned.out.bam.polya.featurecounts.txt.summary,15562.524840837945
+13_polyA_51_Hf04_BlTN_L003.Aligned.out.bam.polya.featurecounts.txt.summary,15517.801006727113
+4_polyA_41_Hf01_LiHe_L008.Aligned.out.bam.polya.featurecounts.txt.summary,25321.34090222979
+3_polyA_41_Hf01_LiHe_L007.Aligned.out.bam.polya.featurecounts.txt.summary,25494.56455664775
+11_polyA_51_Hf04_BlTN_L001.Aligned.out.bam.polya.featurecounts.txt.summary,15582.879809308495

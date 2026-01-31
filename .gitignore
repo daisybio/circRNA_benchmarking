@@ -30,3 +30,13 @@
 !circrna_pipeline_run/**
 !README.md
 !LICENSE
+!results/
+!results/**
+!results/overview/
+!results/overview/**
+!results/rrna_analysis/
+!results/rrna_analysis/**
+!results/rrna_analysis/DEEP/
+!results/rrna_analysis/DEEP/**
+!results/rrna_analysis/GSE138734/
+!results/rrna_analysis/GSE138734/**

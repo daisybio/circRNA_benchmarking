@@ -1,0 +1,13 @@
+9_total_51_Hf04_BlEM_L005.Aligned.out.bam.total.featurecounts.txt.summary,10655.067477153983
+6_total_51_Hf04_BlCM_L005.Aligned.out.bam.total.featurecounts.txt.summary,222408.5684626716
+2_total_41_Hf01_LiHe_L006.Aligned.out.bam.total.featurecounts.txt.summary,244628.67550402385
+7_total_51_Hf04_BlCM_L006.Aligned.out.bam.total.featurecounts.txt.summary,222356.96263049802
+1_total_41_Hf01_LiHe_L005.Aligned.out.bam.total.featurecounts.txt.summary,246019.83450222507
+12_total_51_Hf04_BlTN_L005.Aligned.out.bam.total.featurecounts.txt.summary,29743.416884500188
+3_total_41_Hf01_LiHe_L007.Aligned.out.bam.total.featurecounts.txt.summary,245493.1362806138
+8_total_51_Hf04_BlEM_L004.Aligned.out.bam.total.featurecounts.txt.summary,10436.243866907553
+13_total_51_Hf04_BlTN_L006.Aligned.out.bam.total.featurecounts.txt.summary,30149.63107759768
+5_total_51_Hf04_BlCM_L004.Aligned.out.bam.total.featurecounts.txt.summary,221320.98912429603
+11_total_51_Hf04_BlTN_L004.Aligned.out.bam.total.featurecounts.txt.summary,29059.0816104752
+10_total_51_Hf04_BlEM_L006.Aligned.out.bam.total.featurecounts.txt.summary,10752.643280979382
+4_total_41_Hf01_LiHe_L008.Aligned.out.bam.total.featurecounts.txt.summary,244338.37089828905

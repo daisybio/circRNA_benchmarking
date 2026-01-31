@@ -1,0 +1,62 @@
+{
+    "ciriquant": {
+        "08_polya": 0,
+        "05_polya": 0,
+        "01_polya": 0,
+        "09_polya": 31,
+        "07_polya": 19,
+        "10_polya": 6,
+        "02_polya": 100,
+        "03_polya": 21,
+        "04_polya": 0,
+        "06_polya": 67
+    },
+    "circexplorer2": {
+        "03_polya": 389,
+        "07_polya": 149,
+        "10_polya": 179,
+        "05_polya": 704,
+        "01_polya": 492,
+        "09_polya": 199,
+        "04_polya": 1783,
+        "02_polya": 119,
+        "08_polya": 154,
+        "06_polya": 356
+    },
+    "segemehl": {
+        "10_polya": 736,
+        "06_polya": 1039,
+        "04_polya": 3322,
+        "01_polya": 1206,
+        "07_polya": 591,
+        "05_polya": 1314,
+        "09_polya": 665,
+        "03_polya": 1129,
+        "02_polya": 360,
+        "08_polya": 794
+    },
+    "dcc": {
+        "10_polya": 0,
+        "07_polya": 5,
+        "03_polya": 0,
+        "06_polya": 51,
+        "08_polya": 0,
+        "05_polya": 5,
+        "09_polya": 64,
+        "04_polya": 0,
+        "02_polya": 48,
+        "01_polya": 0
+    },
+    "find_circ": {
+        "07_polya": 53,
+        "03_polya": 99,
+        "02_polya": 20,
+        "04_polya": 204,
+        "06_polya": 127,
+        "10_polya": 40,
+        "01_polya": 80,
+        "08_polya": 36,
+        "05_polya": 61,
+        "09_polya": 137
+    }
+}

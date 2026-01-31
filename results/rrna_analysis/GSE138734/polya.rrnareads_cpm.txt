@@ -1,0 +1,10 @@
+08_polya_RNA_AT022.Aligned.out.bam.polya.featurecounts.txt.summary,74000.4408787164
+10_polya_RNA_AT024.Aligned.out.bam.polya.featurecounts.txt.summary,57685.651957975606
+09_polya_RNA_AT023.Aligned.out.bam.polya.featurecounts.txt.summary,51934.80556731135
+03_polya_RNA_AT016.Aligned.out.bam.polya.featurecounts.txt.summary,42390.25010647094
+05_polya_RNA_AT019.Aligned.out.bam.polya.featurecounts.txt.summary,79093.29834846241
+01_polya_RNA_AT014.Aligned.out.bam.polya.featurecounts.txt.summary,135906.1311727302
+07_polya_RNA_AT021.Aligned.out.bam.polya.featurecounts.txt.summary,40211.19726381287
+06_polya_RNA_AT020.Aligned.out.bam.polya.featurecounts.txt.summary,44740.34571628154
+04_polya_RNA_AT018.Aligned.out.bam.polya.featurecounts.txt.summary,58262.17451763152
+02_polya_RNA_AT015.Aligned.out.bam.polya.featurecounts.txt.summary,39379.682015884944

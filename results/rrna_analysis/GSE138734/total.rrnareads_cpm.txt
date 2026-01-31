@@ -1,0 +1,10 @@
+03_total_RNA_AT016.Aligned.out.bam.total.featurecounts.txt.summary,4742.545048837386
+02_total_RNA_AT015.Aligned.out.bam.total.featurecounts.txt.summary,2122.92481905763
+01_total_RNA_AT014.Aligned.out.bam.total.featurecounts.txt.summary,6014.720433434698
+04_total_RNA_AT018.Aligned.out.bam.total.featurecounts.txt.summary,9994.612435094716
+05_total_RNA_AT019.Aligned.out.bam.total.featurecounts.txt.summary,27048.196313940545
+10_total_RNA_AT024.Aligned.out.bam.total.featurecounts.txt.summary,7525.016196751472
+07_total_RNA_AT021.Aligned.out.bam.total.featurecounts.txt.summary,7837.273811162506
+09_total_RNA_AT023.Aligned.out.bam.total.featurecounts.txt.summary,12825.25964864129
+08_total_RNA_AT022.Aligned.out.bam.total.featurecounts.txt.summary,22707.9796758136
+06_total_RNA_AT020.Aligned.out.bam.total.featurecounts.txt.summary,25249.346327549323
