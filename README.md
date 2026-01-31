@@ -9,9 +9,9 @@ https://github.com/nf-core/circrna/tree/new_benchmarking
 
 
 ## Directory Structure
-After all four  execution of `nf-core/circrna` on both data types of both datasets, 
-move the pipeline output of the BJS detection (`bsj_detection`) into eiter `polya/bed` or `total/bed` based on 
-what datatype and dataset was used. Make sure the pipeline was executed using the blacklist.
+After all four runs of `nf-core/circrna` on both data types of both datasets, 
+move the pipeline output of the BJS detection (`bsj_detection`) into eiter `polya/bed`, or `total/bed`, based on 
+what datatype and dataset was used. Make sure the pipeline was executed using the `blacklist`.
 
 Extract `bam` files located in `tools/unified/start/2nd_pass` into a shared directory `polya/bam` or `total/bam`
 based on datatype and dataset.
