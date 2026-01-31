@@ -28,3 +28,4 @@
 !environment.yml
 !circrna_pipeline_run/
 !circrna_pipeline_run/**
+!README.md
