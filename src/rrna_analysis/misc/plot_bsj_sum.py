@@ -2,6 +2,8 @@ import json
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
+import sys
+import os
 
 # Custom palette
 palette = {
@@ -9,9 +11,11 @@ palette = {
     "polyA": "#66C2A5",  # green
 }
 
+MAIN_DATA_DIR = sys.argv[1]
+
 # Input files
-polya_file = "./polya.bsj_amount.json"
-total_file = "./total.bsj_amount.json"
+polya_file = os.path.join(MAIN_DATA_DIR, "polya.bsj_amount.json")
+total_file = os.path.join(MAIN_DATA_DIR, "total.bsj_amount.json")
 
 # Load JSONs
 with open(polya_file) as f:
@@ -22,82 +26,8 @@ with open(total_file) as f:
 
 tools = polya_data.keys()
 
-# Plot per tool
-for tool in tools:
-    continue
-    polya_vals = polya_data[tool]
-    total_vals = total_data[tool]
-
-    # Collect samples and sort numerically
-    samples = sorted([k.split("_")[0] for k in polya_vals.keys()])
-    data = []
-    for s in samples:
-        s_str = str(s)
-        data.append({"Sample": s, "Type": "polyA", "Count": polya_vals.get(f"{s_str}_polya", 0)})
-        data.append({"Sample": s, "Type": "total", "Count": total_vals.get(f"{s_str}_total", 0)})
-
-    df = pd.DataFrame(data)
-
-    # Plot
-    plt.figure(figsize=(10,6))
-    ax = sns.barplot(
-        data=df,
-        x="Sample", y="Count", hue="Type",
-        palette=palette,
-        edgecolor="black"
-    )
-
-    ax.set_title(f"{tool} - PolyA vs Total")
-    ax.set_ylabel("BSJ Sum")
-    ax.set_xlabel("Sample")
-    ax.set_yscale("log")
-    plt.xticks()
-    plt.tight_layout()
-    
-    # Save per tool
-    plt.savefig(f"{tool}_bsj_amount_sum.png", dpi=300)
-    plt.close()
-
 tools = polya_data.keys()
 
-#all_data = []
-#for tool in tools:
-#    polya_vals = polya_data[tool]
-#    total_vals = total_data[tool]
-#
-#    samples = sorted([k.split("_")[0] for k in polya_vals.keys()])
-#    for s in samples:
-#        s_str = str(s)
-#        all_data.append({
-#            "Tool": tool,
-#            "Type": "polyA",
-#            "Count": polya_vals.get(f"{s_str}_polyA", 0)
-#        })
-#        all_data.append({
-#            "Tool": tool,
-#            "Type": "total",
-#            "Count": total_vals.get(f"{s_str}_total", 0)
-#        })
-#
-#df = pd.DataFrame(all_data)
-#
-#
-#plt.figure(figsize=(10,6))
-#ax = sns.boxplot(
-#    data=df,
-#    x="Tool", y="Count", hue="Type",
-#    palette=palette
-#)
-#
-#ax.set_title("PolyA vs Total across tools")
-#ax.set_ylabel("BSJ Sum")
-#ax.set_xlabel("Tool")
-##ax.set_yscale("log")
-#plt.xticks(rotation=45)
-#plt.tight_layout()
-#
-#plt.savefig("all_tools_bsj_amount_boxplot.png", dpi=300)
-#plt.close()
 
 
 all_data = []
@@ -123,11 +53,11 @@ for tool in tools:
 df = pd.DataFrame(all_data)
 
 
-name_map = { 'segemehl_filtered_blacklist': 'Segemehl',
-    'dcc_filtered_blacklist': 'DCC',
-    'ciriquant_filtered_blacklist': 'CIRIquant',
-    'circexplorer2_filtered_blacklist': 'CIRCexplorer2',
-    'find_circ_filtered_blacklist':'find_circ'
+name_map = { 'segemehl': 'Segemehl',
+    'dcc': 'DCC',
+    'ciriquant': 'CIRIquant',
+    'circexplorer2': 'CIRCexplorer2',
+    'find_circ':'find_circ'
     }
 
 name_map_1 = { 'polyA': 'Poly(A)',
@@ -173,5 +103,6 @@ plt.legend(handles[:2], labels[:2], title="Type")
 
 sns.despine()
 plt.tight_layout()
-plt.savefig("all_tools_bsj_amount_boxplot_jitter.png", dpi=300)
+out = os.path.join(MAIN_DATA_DIR, "all_tools_bsj_amount_boxplot_jitter.png")
+plt.savefig(out, dpi=300)
 plt.close()

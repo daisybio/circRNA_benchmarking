@@ -57,7 +57,21 @@ python3 ./util/count_rrna_reads.py $PREFIX_GSE138734_ $RRNA_GTF $PREFIX_GSE13873
 echo "Running rRNA analysis"
 python3 ./rrna_analysis/rrna_corr.py $PREFIX_GSE138734  ../results/rrna_analysis/GSE138734
 python3 ./rrna_analysis/rrna_corr.py $PREFIX_DEEP ../results/rrna_analysis/DEEP
+
+
+echo "Plotting correlation dumbbell plot"
 python3 ./rrna_analysis/plot_rrna_corr.py ../results/rrna_analysis/DEEP
 python3 ./rrna_analysis/plot_rrna_corr.py ../results/rrna_analysis/GSE138734
+
+
+echo "Plotting BSJ sum distribution"
+python3 ./rrna_analysis/misc/plot_bsj_sum.py ../results/rrna_analysis/GSE138734
+python3 ./rrna_analysis/misc/plot_bsj_sum.py ../results/rrna_analysis/DEEP
+ 
+ 
+echo "Plotting rRNA %"
+python3 ./rrna_analysis/misc/plot_norm_rrna_reads.py $PREFIX_DEEP ../results/rrna_analysis/DEEP 
+python3 ./rrna_analysis/misc/plot_norm_rrna_reads.py $PREFIX_GSE138734 ../results/rrna_analysis/GSE138734
+
 
 echo "DONE"
