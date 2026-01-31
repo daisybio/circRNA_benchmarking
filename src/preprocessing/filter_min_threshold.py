@@ -25,7 +25,6 @@ for t in ["blacklist"]:
     ]
     cutoff = 5
 
-    print("filtered\ttool\torigin\ttotal\tpct\tremaining\ttype")
     columns = ["filtered", "tool", "origin", "total", "pct", "remaining", "type"]
     df = pd.DataFrame(columns=columns)
 
@@ -69,5 +68,6 @@ for t in ["blacklist"]:
                             continue
 
         tool_name = root_dir.split("/")[-2]
-        print(f"{i}\t{tool_name}\t{origin}\t{total}\t{i/total}\t{total-i}\t{t}")
+        print(f"Stats for min evidence filtering for {root_dir}")
+        print(f"Retained: {total-i}, Removed: {i} Ratio: {i/total}")
         df.loc[len(df)] = [i, tool_name, origin, total, i / total, total - i, t]

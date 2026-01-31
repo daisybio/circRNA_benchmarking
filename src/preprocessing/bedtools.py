@@ -3,41 +3,7 @@ import subprocess
 import sys
 
 MAIN_DATA_DIR = sys.argv[1]
-# RRNA_GTF = sys.argv[2]
 BEDTYPE = "filtered_bed_min_blacklist"
-
-
-def run_feature_counts(d_type: str):
-    outdir_prefix = os.path.join("featurecounts", d_type)
-
-    for dirpath, e, files in os.walk(os.path.join(MAIN_DATA_DIR, d_type, "bam")):
-        for file in files:
-            sample_name = os.path.basename(file)
-            sample_out = os.path.join(
-                outdir_prefix, f"{sample_name}.{d_type}.featurecounts.txt"
-            )
-            path_to_sample = os.path.join(dirpath, file)
-
-            run_cmd = [
-                "featureCounts",
-                "-p",
-                "--countReadPairs",
-                "-M",
-                "--fraction",
-                "-a",
-                RRNA_GTF,
-                "-o",
-                sample_out,
-                "-t",
-                "exon",
-                "-g",
-                "gene_id",
-                "-T",
-                "4",
-                path_to_sample,
-            ]
-            print(" ".join(run_cmd))
-            subprocess.run(run_cmd)
 
 
 def run_merge(d_type: str):
@@ -99,32 +65,30 @@ def run_intersect(tools):
 
 
 if __name__ == "__main__":
-    #run_feature_counts("total")
-    #run_feature_counts("polya")
-    print("Counted rRNA spanning reads")
-    
-    #run_sort_concat("total")
-    #run_sort_concat("polya")
-    #print("Sorted and concatenated beds")
+    run_sort_concat("total")
+    run_sort_concat("polya")
+    print("Sorted and concatenated beds")
 
 
-    #run_merge("total")
-    #run_merge("polya")
-    #print("Merged concatenated beds")
+    run_merge("total")
+    run_merge("polya")
+    print("Merged concatenated beds")
 
-    ### extract tools
-    #tools = set()
-    #for dirpath, _, files in os.walk(os.path.join(MAIN_DATA_DIR, "polya", BEDTYPE)):
-    #    if dirpath.endswith("filtered_blacklist"):
-    #        in_path = os.path.abspath(dirpath)
-    #        tool = dirpath.split("/")[-1]
-    #        tools.add(tool)
+    ## extract tools
+    tools = set()
+    for dirpath, _, files in os.walk(os.path.join(MAIN_DATA_DIR, "polya", BEDTYPE)):
+        if dirpath.endswith("filtered_blacklist"):
+            in_path = os.path.abspath(dirpath)
+            tool = dirpath.split("/")[-1]
+            tools.add(tool)
 
-    #run_intersect(tools)
-    #print("Intersected merged beds")
+    run_intersect(tools)
+    print("Intersected merged beds")
 
     run_sort_concat_all("total")
     run_sort_concat_all("polya")
+    print("Merged tool-wise merged beds")
     
     run_merge_all("total")
     run_merge_all("polya")
+    print("Intersected merged tool-wise merged beds")
