@@ -78,5 +78,5 @@ rRNA GTF: https://github.com/zxl124/rRNA_gtfs
 After having set up everything, run
 ```
 cd src/
-bash run_analysis.py
+bash run_analysis.sh
 ```
