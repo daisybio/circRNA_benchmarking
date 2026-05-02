@@ -64,6 +64,7 @@ def bar_plot(data, data_origin):
 
 
 def dumbell_plot(total, polya, output_file):
+    dataset_name = MAIN_DATA_DIR.split("/")[-1]
     cb_palette = sns.color_palette("colorblind")
     palette = {"total": cb_palette[0], "polya": cb_palette[1]}
 
@@ -143,7 +144,7 @@ def dumbell_plot(total, polya, output_file):
     ]
 
     ax.set_xlabel("Pearson Correlation", fontsize=15)
-    ax.set_title(f"GSE138734",
+    ax.set_title(f"{dataset_name}",
                  fontsize=13, fontweight="bold")
     ax.grid(axis="x", linestyle="--", alpha=0.7)
     ax.spines["top"].set_visible(False)

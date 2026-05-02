@@ -17,6 +17,7 @@ OUT_DIR = sys.argv[2]
 
 # parse read amount per sample bam
 READS_AMOUNT = dict()
+RRNA_READS_AMOUNT = dict()
 
 def parse_bed(bed_file_path):
     """
@@ -77,12 +78,9 @@ def parse_featurecount(featurecounts_file_path):
     return sample, num_rRNA_sp_reads.iloc[0]
 
 
-def compute_corr(bed_paths, featurecounts_paths, origin):
+def compute_corr(bed_paths, origin):
     bsj_dict = defaultdict(dict)
-    rRNA_dict = dict()
-
     bsj_samples = set()
-    featurecounts_samples = set()
     tools = set()
 
     # load num_bsj_reads into dict:
@@ -93,27 +91,9 @@ def compute_corr(bed_paths, featurecounts_paths, origin):
         bsj_samples.add(sample)
         tools.add(tool)
 
-    # extract number of rRNA spanning reads per sample
-    rrna_reads = []
-    paths = []
-    for featurecounts_file in featurecounts_paths:
-        sample, num_rRNA_sp_reads = parse_featurecount(featurecounts_file.strip("\n"))
-        rRNA_dict[sample] = num_rRNA_sp_reads
-        rrna_reads.append(str((num_rRNA_sp_reads / READS_AMOUNT[sample]) * 1000000))
-        paths.append(featurecounts_file)
-        featurecounts_samples.add(sample)
+    if len(bsj_samples & RRNA_READS_AMOUNT.keys()) != len(bsj_samples):
+        print(f"Samples missmatching between BED files and rrna_spanning_reads files: \n BED: {bsj_samples} \n vs. \n RRNA: {RRNA_READS_AMOUNT.keys()}")
 
-    if bsj_samples != featurecounts_samples:
-        print("Samples are mismatching!")
-        print(f"Featruecount samples: {featurecounts_samples}")
-        print(f"BSJ_samples: {bsj_samples}")
-        exit(1)
-
-    rrna_cmp_out = os.path.join(OUT_DIR,f"{origin}.rrnareads_cpm.txt")
-    with open(rrna_cmp_out, "w") as f:
-        for i in range(len(paths)):
-            f.write(f"{os.path.basename(paths[i])},{rrna_reads[i]}\n")
-    
     # save bsj_dict
     bsj_out = os.path.join(OUT_DIR,f"{origin}.bsj_amount.json")
     with open(bsj_out, "w") as f:
@@ -127,8 +107,8 @@ def compute_corr(bed_paths, featurecounts_paths, origin):
         Y = []
         for sample in bsj_samples:
             X.append((bsj_dict[tool][sample], sample))
-            rpm = (rRNA_dict[sample] / READS_AMOUNT[sample]) * 1000000
-            Y.append((rpm, sample))
+            rrna_fraction = (RRNA_READS_AMOUNT[sample] / READS_AMOUNT[sample]) 
+            Y.append((rrna_fraction, sample))
 
         # here we sort tupes of X (num_bsj_reads, sample) by num_bsj_reads and
         # apply same (sample based) order to Y
@@ -157,16 +137,16 @@ def compute_corr(bed_paths, featurecounts_paths, origin):
     return correlations
 
 
-def rrna_analysis(total_bed_paths, total_featurecounts_paths, data_origin):
+def rrna_analysis(total_bed_paths, data_origin):
     json_path = f"{data_origin}.rna_rrna_corr.json"
     os.makedirs(OUT_DIR, exist_ok=True)
     out = os.path.join(OUT_DIR, json_path)
-    corr_dict = compute_corr(total_bed_paths, total_featurecounts_paths, data_origin)
+    corr_dict = compute_corr(total_bed_paths, data_origin)
     with open(out, "w") as f:
         json.dump(corr_dict, f, indent=4)
 
 
-def read_bam_meta(path_to_meta):
+def read_bam_meta(path_to_meta, read_dict):
     with open(path_to_meta) as f:
         lines = f.readlines()
         for line in lines:
@@ -174,30 +154,30 @@ def read_bam_meta(path_to_meta):
                 continue
             sample = "_".join(line.split("\t")[0].split("/")[-1].split(".")[0].split("_")[0:2])
             amount = int(line.split("\t")[-1].strip("\n"))
-            READS_AMOUNT[sample] = amount
+            read_dict[sample] = amount
 
 
 if __name__ == "__main__":
     polya_bam_amount = os.path.join(MAIN_DATA_DIR, "polya", "bam_meta", "counts.txt")
     total_bam_amount = os.path.join(MAIN_DATA_DIR, "total", "bam_meta", "counts.txt")
-    read_bam_meta(polya_bam_amount)
-    read_bam_meta(total_bam_amount)
+    read_bam_meta(polya_bam_amount, READS_AMOUNT)
+    read_bam_meta(total_bam_amount, READS_AMOUNT)
+    
+    polya_bam_rrna_amount = os.path.join(MAIN_DATA_DIR, "polya", "rrna_reads", "rrna_spanning_reads.tsv")
+    total_bam_rrna_amount = os.path.join(MAIN_DATA_DIR, "total", "rrna_reads", "rrna_spanning_reads.tsv")
+    read_bam_meta(total_bam_rrna_amount, RRNA_READS_AMOUNT)
+    read_bam_meta(polya_bam_rrna_amount, RRNA_READS_AMOUNT)
+
+    if READS_AMOUNT.keys() != RRNA_READS_AMOUNT.keys():
+        print(f"Samples missmatching between bam_meta files and rrna_spanning_reads files: \n BAM_META: {READS_AMOUNT.keys()} \n vs. \n RRNA: {RRNA_READS_AMOUNT.keys()}")
 
 
     for data_origin in ["total", "polya"]:
         bed_files = []
-        featurecounts_files = []
-        featurecounts_dir = os.path.join(MAIN_DATA_DIR, data_origin, "rrna_reads")
-        for di, _, files in os.walk(featurecounts_dir):
-            for file in files:
-                if "summary" in file:
-                    path_to_file = os.path.join(os.path.abspath(di), file)
-                    featurecounts_files.append(path_to_file)
-
         bed_dir = os.path.join(MAIN_DATA_DIR, data_origin, "filtered_bed_min_blacklist")
         for di, _, files in os.walk(bed_dir):
             for file in files:
                 path_to_file = os.path.join(os.path.abspath(di), file)
                 bed_files.append(path_to_file)
 
-        rrna_analysis(bed_files, featurecounts_files, data_origin)
+        rrna_analysis(bed_files, data_origin)
