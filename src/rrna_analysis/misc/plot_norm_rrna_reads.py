@@ -4,91 +4,58 @@ import pandas as pd
 import os
 import sys
 
-MAIN_DIR = sys.argv[1]
+MAIN_DATA_DIR = sys.argv[1]
 RRNA_DIR = sys.argv[2]
 
-# Read total counts
-total_reads_path = os.path.join(MAIN_DIR, "total/bam_meta/counts.txt")
-df_total_total = pd.read_csv(total_reads_path, sep="\t")
+READS_AMOUNT = dict()
+RRNA_READS_AMOUNT = dict()
 
-polya_reads_path = os.path.join(MAIN_DIR, "polya/bam_meta/counts.txt")
-df_total_polya = pd.read_csv(polya_reads_path, sep="\t")
 
-total_total_counts = {
-    os.path.basename(f).split(".")[0].split("_")[0]: count
-    for f, count in zip(df_total_total["File"], df_total_total["Read_Count"])
-}
+dataset_name = MAIN_DATA_DIR.split("/")[-1]
+if len(dataset_name) == 0:
+    dataset_name = MAIN_DATA_DIR.split("/")[-2]
+    
+def read_bam_meta(path_to_meta, read_dict):
+    with open(path_to_meta) as f:
+        lines = f.readlines()
+        for line in lines:
+            if "File" in line:
+                continue
+            sample = "_".join(line.split("\t")[0].split("/")[-1].split(".")[0].split("_")[0:2])
+            amount = int(line.split("\t")[-1].strip("\n"))
+            read_dict[sample] = amount
 
-total_polya_counts = {
-    os.path.basename(f).split(".")[0].split("_")[0]: count
-    for f, count in zip(df_total_polya["File"], df_total_polya["Read_Count"])
-}
+polya_bam_amount = os.path.join(MAIN_DATA_DIR, "polya", "bam_meta", "counts.txt")
+total_bam_amount = os.path.join(MAIN_DATA_DIR, "total", "bam_meta", "counts.txt")
+read_bam_meta(polya_bam_amount, READS_AMOUNT)
+read_bam_meta(total_bam_amount, READS_AMOUNT)
 
-# Read rRNA CPM counts
-total_rrna_path = os.path.join(RRNA_DIR, "total.rrnareads_cpm.txt")
-df_rrna_total = pd.read_csv(total_rrna_path, header=None)
-df_rrna_total.columns = ["File", "rRNA_CPM"]
+polya_bam_rrna_amount = os.path.join(MAIN_DATA_DIR, "polya", "rrna_reads", "rrna_spanning_reads.tsv")
+total_bam_rrna_amount = os.path.join(MAIN_DATA_DIR, "total", "rrna_reads", "rrna_spanning_reads.tsv")
+read_bam_meta(total_bam_rrna_amount, RRNA_READS_AMOUNT)
+read_bam_meta(polya_bam_rrna_amount, RRNA_READS_AMOUNT)
 
-polya_rrna_path = os.path.join(RRNA_DIR, "polya.rrnareads_cpm.txt")
-df_rrna_polya = pd.read_csv(polya_rrna_path, header=None)
-df_rrna_polya.columns = ["File", "rRNA_CPM"]
+if READS_AMOUNT.keys() != RRNA_READS_AMOUNT.keys():
+    print(f"Samples missmatching between bam_meta files and rrna_spanning_reads files: \n BAM_META: {READS_AMOUNT.keys()} \n vs. \n RRNA: {RRNA_READS_AMOUNT.keys()}")
 
-rrna_total_cpm = {
-    os.path.basename(f).split(".")[0].split("_")[0]: cpm
-    for f, cpm in zip(df_rrna_total["File"], df_rrna_total["rRNA_CPM"])
-}
+# Build df_pct from the dicts
+rows = []
+for key, rrna_count in RRNA_READS_AMOUNT.items():
+    total_count = READS_AMOUNT.get(key)
+    if total_count is None:
+        print(f"Warning: {key} not found in READS_AMOUNT")
+        continue
+    parts = key.rsplit("_", 1)
+    sample_id = parts[0]
+    rna_type = parts[1].lower()   
+    pct = (rrna_count / total_count) * 100
+    rows.append({"Sample": sample_id, "Type": rna_type, "Percent_rRNA": pct})
 
-rrna_polya_cpm = {
-    os.path.basename(f).split(".")[0].split("_")[0]: cpm
-    for f, cpm in zip(df_rrna_polya["File"], df_rrna_polya["rRNA_CPM"])
-}
+df_pct = pd.DataFrame(rows)
+df_pct["Sample"] = df_pct["Sample"].astype(int)
+df_pct = df_pct.sort_values("Sample")
+df_pct["Sample"] = df_pct["Sample"].astype(str)
 
-# Convert CPM back to raw counts and calculate percentages
-pct_data = []
-
-for sample_id in total_total_counts.keys():
-    if sample_id in rrna_total_cpm:
-        total_count = total_total_counts[sample_id]
-        rrna_cpm = rrna_total_cpm[sample_id]
-        # Convert CPM back to raw count
-        rrna_raw = (rrna_cpm * total_count) / 1e6
-        # Calculate percentage
-        pct_rrna = (rrna_raw / total_count) * 100
-        
-        pct_data.append({
-            'Sample': sample_id,
-            'Type': 'total',
-            'Percent_rRNA': pct_rrna
-        })
-
-for sample_id in total_polya_counts.keys():
-    if sample_id in rrna_polya_cpm:
-        total_count = total_polya_counts[sample_id]
-        rrna_cpm = rrna_polya_cpm[sample_id]
-        # Convert CPM back to raw count
-        rrna_raw = (rrna_cpm * total_count) / 1e6
-        # Calculate percentage
-        pct_rrna = (rrna_raw / total_count) * 100
-        
-        pct_data.append({
-            'Sample': sample_id,
-            'Type': 'polya',
-            'Percent_rRNA': pct_rrna
-        })
-
-df_pct = pd.DataFrame(pct_data)
-
-# Sort samples numerically
-def sort_key(sample):
-    """Extract numeric part for sorting"""
-    import re
-    match = re.search(r'(\d+)', str(sample))
-    return int(match.group(1)) if match else 0
-
-df_pct['sort_key'] = df_pct['Sample'].apply(sort_key)
-df_pct = df_pct.sort_values('sort_key')
-
-# Set up plot style
 sns.set_theme(style="ticks", context="paper", palette="colorblind")
 sns.set_context(
     "paper",
@@ -104,35 +71,31 @@ sns.set_context(
     },
 )
 plt.rcParams["figure.figsize"] = (8, 4.5)
-
 cb_palette = sns.color_palette("colorblind")
 palette = {
     "total": cb_palette[0],
     "polya": cb_palette[1],
 }
 
-# Plot
 fig, ax = plt.subplots()
 sns.barplot(
-    data=df_pct, 
-    x='Sample', 
-    y='Percent_rRNA', 
-    hue='Type',
-    hue_order=['total', 'polya'],
+    data=df_pct,
+    x="Sample",
+    y="Percent_rRNA",
+    hue="Type",
+    hue_order=["total", "polya"],
     palette=palette,
     ax=ax,
-    edgecolor= "black"
-
+    edgecolor="black"
 )
-ax.set_ylabel('% rRNA Reads')
-ax.set_xlabel('Sample')
+ax.set_ylabel("% rRNA Reads")
+ax.set_xlabel("Sample")
 handles, labels = ax.get_legend_handles_labels()
-label_map = {'total': 'Total', 'polya': 'Poly(A)'}
-new_labels = [label_map.get(label, label) for label in labels]
-ax.legend(handles, new_labels)
+label_map = {"total": "Total", "polya": "Poly(A)"}
+ax.legend(handles, [label_map.get(l, l) for l in labels])
 ax.yaxis.grid(True, linestyle="--", linewidth=1, color="lightgray")
 sns.despine()
-ax.set_title(f'rRNA Contamination by Sample in {RRNA_DIR.split("/")[-1]}')
+ax.set_title(f"rRNA Contamination per Sample in {dataset_name}")
 plt.tight_layout()
-plt.savefig(os.path.join(RRNA_DIR, 'rrna_percentage.png'), dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(RRNA_DIR, "rrna_percentage.png"), dpi=300, bbox_inches="tight")
 plt.show()
