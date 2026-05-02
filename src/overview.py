@@ -632,15 +632,6 @@ def plot_upset(base_dir, condition, dataset, output_file):
         .reset_index()
     )
 
-    name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
-    'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
-    }
-    
-    grouped['tool'] =  grouped["tool"].replace(name_map)
-
     # Convert to list for upsetplot
     memberships = grouped["tool"].apply(lambda s: tuple(sorted(s)))
 
