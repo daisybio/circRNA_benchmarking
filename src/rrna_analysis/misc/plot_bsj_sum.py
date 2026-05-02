@@ -5,13 +5,15 @@ import pandas as pd
 import sys
 import os
 
-# Custom palette
-palette = {
-    "total": "#FC8D62",  # orange
-    "polyA": "#66C2A5",  # green
-}
-
 MAIN_DATA_DIR = sys.argv[1]
+dataset_name = MAIN_DATA_DIR.split("/")[-1]
+
+
+sns.set_theme(style="ticks", context="paper", palette="colorblind")
+
+sns.set_context(
+    "paper"
+)
 
 # Input files
 polya_file = os.path.join(MAIN_DATA_DIR, "polya.bsj_amount.json")
@@ -26,28 +28,24 @@ with open(total_file) as f:
 
 tools = polya_data.keys()
 
-tools = polya_data.keys()
-
-
-
 all_data = []
 for tool in tools:
     polya_vals = polya_data[tool]
     total_vals = total_data[tool]
 
     # Extract per-sample values
-    samples = sorted([k.split("_")[0] for k in polya_vals.keys()])
-    for s in samples:
-        s_str = str(s)
+    for sample in polya_vals.keys():
         all_data.append({
             "Tool": tool,
             "Type": "polyA",
-            "Count": polya_vals.get(f"{s_str}_polya", 0)
+            "Count": polya_vals.get(sample, 0)
         })
+    
+    for sample in total_vals.keys():
         all_data.append({
             "Tool": tool,
             "Type": "total",
-            "Count": total_vals.get(f"{s_str}_total", 0)
+            "Count": total_vals.get(sample, 0)
         })
 
 df = pd.DataFrame(all_data)
@@ -68,8 +66,7 @@ df['Type'] = df['Type'].replace(name_map_1)
 tool_order = sorted(df["Tool"].unique())
 plt.figure(figsize=(6, 4))
     
-cb_palette = sns.color_palette("colorblind")
-palette = {"Total": cb_palette[0], "Poly(A)": cb_palette[1]}
+palette = {"Total": "#0073B3", "Poly(A)": "#DE8E04"}  
 
 ax = sns.boxplot(
     data=df,
@@ -92,10 +89,10 @@ sns.stripplot(
     dodge=True, jitter=True, alpha=0.9, size=4, color="black"
 )
 
-ax.set_title("BSJ Evidence per Tool in GSE138734", fontsize=16)
+ax.set_title(f"BSJ Evidence per Tool in {dataset_name}", fontsize=16)
 ax.set_ylabel("Total BSJ Evidence")
 ax.set_xlabel("Tool")
-#ax.set_yscale("log")
+# ax.set_yscale("log")
 #plt.xticks(rotation=45)
 # Fix double legend (boxplot + stripplot)
 handles, labels = ax.get_legend_handles_labels()
