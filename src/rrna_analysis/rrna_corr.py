@@ -8,18 +8,32 @@ import pandas as pd
 import seaborn as sns
 
 from scipy.stats import pearsonr
+from pathlib import Path
 import sys
 
 
 
 MAIN_DATA_DIR = sys.argv[1]
 OUT_DIR = sys.argv[2]
+USE_FILER = "" if len(sys.argv) < 3 else sys.argv[3]
+DATA_SET = OUT_DIR.split("/")[-1]
+
+CONF_BSJ_POLYA = None
+CONF_BSJ_TOTAL = None
+if USE_FILER == "strict":
+    polya_meta = Path(MAIN_DATA_DIR) / "polya_at_least_2.csv"
+    total_meta = Path(MAIN_DATA_DIR) / "total_at_least_2.csv"
+    CONF_BSJ_POLYA = pd.read_csv(polya_meta, sep="\t", index_col=0)
+    CONF_BSJ_TOTAL = pd.read_csv(total_meta, sep="\t", index_col=0)
+    print(CONF_BSJ_POLYA.head())
+    print(CONF_BSJ_TOTAL.head())
+    
 
 # parse read amount per sample bam
 READS_AMOUNT = dict()
 RRNA_READS_AMOUNT = dict()
 
-def parse_bed(bed_file_path):
+def parse_bed(bed_file_path: str, data_origin: str, use_filer: bool=False):
     """
     Reads bed file using pyranges and returns a two keys and the sum
     of bsj reads from the bed.
@@ -50,6 +64,25 @@ def parse_bed(bed_file_path):
         index_col=False,
     )
 
+    if use_filer:
+        # get corresponding filter df
+        filter_df = None
+        if data_origin == "total":
+            filter_df = CONF_BSJ_TOTAL
+        elif data_origin == "polya":
+            filter_df = CONF_BSJ_POLYA
+    
+        # remove any bsj that was not detected by at least 3 tools 
+        if filter_df is not None:
+            merge_cols = ["chrom", "start", "end", "strand"]
+
+            df = df.merge(
+                filter_df[merge_cols].drop_duplicates(),
+                on=merge_cols,
+                how="inner",
+            )
+            
+
     # sum # of bsj_reads
     num_bsj_reads = df["score"].sum()
 
@@ -78,7 +111,7 @@ def parse_featurecount(featurecounts_file_path):
     return sample, num_rRNA_sp_reads.iloc[0]
 
 
-def compute_corr(bed_paths, origin):
+def compute_corr(bed_paths, origin, use_filer: bool=False):
     bsj_dict = defaultdict(dict)
     bsj_samples = set()
     tools = set()
@@ -86,7 +119,7 @@ def compute_corr(bed_paths, origin):
     # load num_bsj_reads into dict:
     # tools -> samples -> nums
     for bed_file_path in bed_paths:
-        sample, tool, num_bsj_reads = parse_bed(bed_file_path.strip("\n"))
+        sample, tool, num_bsj_reads = parse_bed(bed_file_path.strip("\n"), data_origin=data_origin,use_filer=use_filer)
         bsj_dict[tool][sample] = num_bsj_reads
         bsj_samples.add(sample)
         tools.add(tool)
@@ -137,11 +170,11 @@ def compute_corr(bed_paths, origin):
     return correlations
 
 
-def rrna_analysis(total_bed_paths, data_origin):
+def rrna_analysis(total_bed_paths, data_origin, use_filer: bool=False):
     json_path = f"{data_origin}.rna_rrna_corr.json"
     os.makedirs(OUT_DIR, exist_ok=True)
     out = os.path.join(OUT_DIR, json_path)
-    corr_dict = compute_corr(total_bed_paths, data_origin)
+    corr_dict = compute_corr(total_bed_paths, data_origin, use_filer)
     with open(out, "w") as f:
         json.dump(corr_dict, f, indent=4)
 
@@ -172,6 +205,10 @@ if __name__ == "__main__":
         print(f"Samples missmatching between bam_meta files and rrna_spanning_reads files: \n BAM_META: {READS_AMOUNT.keys()} \n vs. \n RRNA: {RRNA_READS_AMOUNT.keys()}")
 
 
+    use_filer = False
+    if USE_FILER == "strict":
+        use_filer = True
+        
     for data_origin in ["total", "polya"]:
         bed_files = []
         bed_dir = os.path.join(MAIN_DATA_DIR, data_origin, "filtered_bed_min_blacklist")
@@ -180,4 +217,4 @@ if __name__ == "__main__":
                 path_to_file = os.path.join(os.path.abspath(di), file)
                 bed_files.append(path_to_file)
 
-        rrna_analysis(bed_files, data_origin)
+        rrna_analysis(bed_files, data_origin, use_filer=use_filer)

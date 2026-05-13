@@ -13,6 +13,7 @@ import sys
 
 PLOT_OUT = sys.argv[1]
 os.makedirs(PLOT_OUT, exist_ok=True)
+DATA_DIR = sys.argv[2]
 
 
  
@@ -594,6 +595,7 @@ def plot_tool_counts(base_dir, condition="polya", dataset="NIH", output_file="to
 
     counts = grouped["tool_count"].value_counts().sort_index()
 
+
     fig, ax = plt.subplots(figsize=(6, 4))
     sns.barplot(x=counts.index, y=counts.values, ax=ax, color="#66C2A5")
 
@@ -634,6 +636,7 @@ def plot_upset(base_dir, condition, dataset, output_file):
 
     # Convert to list for upsetplot
     memberships = grouped["tool"].apply(lambda s: tuple(sorted(s)))
+
 
     # Collapse identical tool sets by counting occurrences
     membership_counts = memberships.value_counts()
@@ -756,14 +759,29 @@ def compare_to_majority(base_dir, dataset, output_file):
     #majority_total['tool'] =  majority_total["tool"].replace(name_map)
 
     majority_total = majority_total[majority_total["tool_count"] >= 4]
-    print(majority_total.head())
+
+
+    majority_polya = (
+        df_polya.groupby(["chrom", "start", "end", "strand"])["tool"]
+        .nunique()
+        .reset_index(name="tool_count")
+    )
+    
+    # get all bsjs discovered by at least 3 tools for each lib
+    at_leats_2_total = majority_total[majority_total["tool_count"] >= 2]
+    at_leats_2_polya = majority_polya[majority_polya["tool_count"] >= 2]
+
+    out_meta_polya = Path(DATA_DIR) / dataset / f"polya_at_least_2.csv"
+    out_meta_total = Path(DATA_DIR) / dataset / f"total_at_least_2.csv"
+
+    at_leats_2_polya.to_csv(f"{out_meta_polya.absolute()}", sep="\t")
+    at_leats_2_total.to_csv(f"{out_meta_total.absolute()}", sep="\t")
 
     df_polya_majority = df_polya.merge(
         majority_total[["chrom", "start", "end", "strand"]],
         on=["chrom", "start", "end", "strand"],
         how="inner"
     )
-    print(df_polya_majority)
 
     grouped = (
         df_polya_majority.groupby(["chrom", "start", "end", "strand"])["tool"]
@@ -833,7 +851,7 @@ if __name__ == '__main__':
     )
 
     compare_to_majority("../data/DEEP/merge_concatenated_beds", "DEEP", "DEEP_gt.png")
-    compare_to_majority("../data/GSE138734/merge_concatenated_beds", "NIH", "NIH_gt.png")
+    compare_to_majority("../data/GSE138734/merge_concatenated_beds", "GSE138734", "NIH_gt.png")
 
     tools = ["circexplorer2", "dcc", "segemehl", "ciriquant", "find_circ"] 
     n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools)

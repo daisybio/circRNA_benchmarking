@@ -4,6 +4,7 @@ PREFIX_GSE138734="/nfs/data3/CIRCEST/runs/test_new_benchmarking/tidy_benchmarkin
 PREFIX_DEEP="/nfs/data3/CIRCEST/runs/test_new_benchmarking/tidy_benchmarking/data/DEEP/"
 PLOT_OUT="/nfs/data3/CIRCEST/runs/test_new_benchmarking/tidy_benchmarking/results/overview"
 RRNA_GTF="/nfs/data3/CIRCEST/runs/test_new_benchmarking/tidy_benchmarking/data/rrna_gtf/ensembl_rRNA.gtf"
+DATA_DIR="/nfs/data3/CIRCEST/runs/test_new_benchmarking/tidy_benchmarking/data"
 
 
 # 1. Filter length 
@@ -21,7 +22,7 @@ python3 ./preprocessing/bedtools.py $PREFIX_DEEP
 
 # 3. BED Analysis
 echo "Running BED analysis"
-python3 ./overview.py $PLOT_OUT
+python3 ./overview.py $PLOT_OUT $DATA_DIR
 
 
 # 4. RRNA Corr Analysis
@@ -62,6 +63,16 @@ python3 ./rrna_analysis/rrna_corr.py $PREFIX_DEEP ../results/rrna_analysis/DEEP
 echo "Plotting correlation dumbbell plot"
 python3 ./rrna_analysis/plot_rrna_corr.py ../results/rrna_analysis/DEEP
 python3 ./rrna_analysis/plot_rrna_corr.py ../results/rrna_analysis/GSE138734
+
+
+echo "Running strict rRNA analysis"
+python3 ./rrna_analysis/rrna_corr.py $PREFIX_GSE138734  ../results/rrna_analysis_strict/GSE138734 strict
+python3 ./rrna_analysis/rrna_corr.py $PREFIX_DEEP ../results/rrna_analysis_strict/DEEP strict
+
+
+echo "Plotting correlation dumbbell plot for strict analysis"
+python3 ./rrna_analysis/plot_rrna_corr.py ../results/rrna_analysis_strict/DEEP
+python3 ./rrna_analysis/plot_rrna_corr.py ../results/rrna_analysis_strict/GSE138734
 
 
 echo "Plotting BSJ sum distribution"
