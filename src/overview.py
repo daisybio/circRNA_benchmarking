@@ -509,6 +509,8 @@ def plot_dataset(base_dir, output_file, dataset):
             tool = f.name.split("_")[0]  # extract tool name (before first "_")
             if tool == "find":
                 tool = "find_circ"
+            if tool == "circrna":
+                tool = "circrna_finder"
             df = pd.read_csv(
                 f,
                 sep="\t",
@@ -523,7 +525,8 @@ def plot_dataset(base_dir, output_file, dataset):
     'dcc': 'DCC',
     'ciriquant': 'CIRIquant',
     'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
+    'find_circ':'find_circ',
+    # 'circrna_finder': 'circrna_finder'
     }
     
     df_counts['tool'] =  df_counts["tool"].replace(name_map)
@@ -571,6 +574,8 @@ def build_bsj_union(base_dir, condition="polya"):
         tool = f.name.split("_")[0]
         if tool == "find":
             tool = "find_circ"
+        if tool == "circrna":
+            tool = "circrna_finder"
         df = pd.read_csv(
             f,
             sep="\t",
@@ -853,7 +858,7 @@ if __name__ == '__main__':
     compare_to_majority("../data/DEEP/merge_concatenated_beds", "DEEP", "DEEP_gt.png")
     compare_to_majority("../data/GSE138734/merge_concatenated_beds", "GSE138734", "NIH_gt.png")
 
-    tools = ["circexplorer2", "dcc", "segemehl", "ciriquant", "find_circ"] 
+    tools = ["circexplorer2", "dcc", "segemehl", "ciriquant", "find_circ", "circrna_finder"] 
     n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools)
     plot_jaccard_heatmaps(n,d, "polyA vs Total")
     plot_jaccard_heatmaps(n_p,d_p, "polyA")

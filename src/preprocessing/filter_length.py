@@ -21,7 +21,9 @@ for t in ["blacklist"]:
         f"{DATA_DIR}polya/bed/ciriquant/{t}",
         f"{DATA_DIR}total/bed/ciriquant/{t}",
         f"{DATA_DIR}polya/bed/find_circ/{t}",
-        f"{DATA_DIR}total/bed/find_circ/{t}"
+        f"{DATA_DIR}total/bed/find_circ/{t}",
+        f"{DATA_DIR}polya/bed/circrna_finder/{t}",
+        f"{DATA_DIR}total/bed/circrna_finder/{t}"
     ]
 
     length_dict = dict()

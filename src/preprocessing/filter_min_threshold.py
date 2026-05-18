@@ -22,6 +22,8 @@ for t in ["blacklist"]:
         f"{DATA_DIR}total/filtered_bed_{t}/ciriquant_filtered_{t}/",
         f"{DATA_DIR}polya/filtered_bed_{t}/find_circ_filtered_{t}/",
         f"{DATA_DIR}total/filtered_bed_{t}/find_circ_filtered_{t}/",
+        f"{DATA_DIR}polya/filtered_bed_{t}/circrna_finder_filtered_{t}/",
+        f"{DATA_DIR}total/filtered_bed_{t}/circrna_finder_filtered_{t}/",
     ]
     cutoff = 5
 
