@@ -1,9 +1,9 @@
 import os
-import json
 import sys
+import csv
 
 
-DATA_DIR=sys.argv[1]
+DATA_DIR = sys.argv[1]
 if DATA_DIR[-1] != "/":
     DATA_DIR = f"{DATA_DIR}/"
 
@@ -16,35 +16,30 @@ for t in ["blacklist"]:
         f"{DATA_DIR}total/bed/circexplorer2/{t}",
         f"{DATA_DIR}polya/bed/segemehl/{t}",
         f"{DATA_DIR}total/bed/segemehl/{t}",
-        f"{DATA_DIR}polya/bed/dcc/{t}",
-        f"{DATA_DIR}total/bed/dcc/{t}",
-        f"{DATA_DIR}polya/bed/ciriquant/{t}",
-        f"{DATA_DIR}total/bed/ciriquant/{t}",
+        f"{DATA_DIR}polya/bed/circtools/{t}",
+        f"{DATA_DIR}total/bed/circtools/{t}",
+        f"{DATA_DIR}polya/bed/ciri/{t}",
+        f"{DATA_DIR}total/bed/ciri/{t}",
         f"{DATA_DIR}polya/bed/find_circ/{t}",
         f"{DATA_DIR}total/bed/find_circ/{t}",
         f"{DATA_DIR}polya/bed/circrna_finder/{t}",
         f"{DATA_DIR}total/bed/circrna_finder/{t}"
     ]
 
-    length_dict = dict()
+    stats = []
 
     for root_dir in root_dirs:
-        i = 0
-        total = 0
-        origin = root_dir.split("/")[0]
-        if origin not in length_dict.keys():
-            length_dict[origin] = dict()
+        origin = root_dir.split("/")[-4]
 
         for filename in os.listdir(root_dir):
+            skipped = 0
+            retained = 0
+            total = 0
             if filename.endswith(".bed"):
                 input_path = os.path.join(root_dir, filename)
                 tool_name = root_dir.split("/")[-2]
                 sample = filename.split("/")[-1].split(".")[0].split("_")[0]
-                if tool_name not in length_dict[origin].keys():
-                    length_dict[origin][tool_name] = dict()
-                
-                if sample not in length_dict[origin][tool_name].keys():
-                    length_dict[origin][tool_name][sample] = []
+                sample_name = filename.split("/")[-1].split(".")[0]
 
                 output_filename = os.path.join(root_dir.replace("blacklist", "").replace("bed", f"filtered_bed_{t}"), filename)
                 output_path = output_filename.replace(tool_name, f"{tool_name}_filtered_{t}")
@@ -53,7 +48,7 @@ for t in ["blacklist"]:
                 os.makedirs(out_dir, exist_ok=True)
 
                 if os.path.abspath(input_path) == os.path.abspath(output_path):
-                        raise RuntimeError("Output path is same as input path — refusing to overwrite!")
+                    raise RuntimeError("Output path is same as input path — refusing to overwrite!")
                 with open(input_path, "r") as infile, open(output_path, "w") as outfile:
                     for line in infile:
                         if line.strip() == "":
@@ -66,13 +61,24 @@ for t in ["blacklist"]:
                             start = int(parts[1])
                             end = int(parts[2])
                             length = end - start
-                            length_dict[origin][tool_name][sample].append(length)
                             if length < CUTOFF:
                                 outfile.write(line)
+                                retained += 1
                             else:
-                                i += 1
+                                skipped += 1
                         except ValueError:
                             continue
 
-        print(f"Stats for length filtering on {root_dir}")
-        print(f"Retained BSJ: {i}, Removed BSJ: {total}, Ratio: {i/total}")
+            ratio = retained/total
+            print(f"Stats for length filtering on {filename}")
+            print(f"Retained BSJ: {retained}, Removed BSJ: {skipped}, Ratio (%retained): {ratio}")
+            stats.append((origin, tool_name, sample_name, skipped, retained, total, ratio))
+    
+    
+col_names = ["origin", "tool", "sample", "skipped", "retained", "total", "ratio"]
+
+out_path = os.path.join(DATA_DIR, "length_filter_stats.tsv")
+with open(out_path, "w", newline="") as f:
+    writer = csv.writer(f, delimiter="\t")
+    writer.writerow(col_names)
+    writer.writerows(stats)
