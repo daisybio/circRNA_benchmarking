@@ -11,6 +11,8 @@ import subprocess
 import shlex
 import sys
 
+TOL = 3 # wiggle room
+
 PLOT_OUT = sys.argv[1]
 os.makedirs(PLOT_OUT, exist_ok=True)
 DATA_DIR = sys.argv[2]
@@ -619,14 +621,49 @@ def plot_upset(base_dir, condition, dataset, output_file):
     df_union['tool'] =  df_union["tool"].replace(name_map)
 
     # Group by BSJ coordinates and collect tools
+    df = df_union.sort_values(["chrom", "strand", "start", "end"]).copy()
+
+    cluster_id = 0
+    clusters = [0]
+
+    for i in range(1, len(df)):
+        prev = df.iloc[i - 1]
+        curr = df.iloc[i]
+
+        same_cluster = (
+            curr["chrom"] == prev["chrom"]
+            and curr["strand"] == prev["strand"]
+            and abs(curr["start"] - prev["start"]) <= TOL
+            and abs(curr["end"] - prev["end"]) <= TOL
+        )
+
+        if not same_cluster:
+            cluster_id += 1
+
+        clusters.append(cluster_id)
+
+    df["cluster"] = clusters
+
     grouped = (
-        df_union.groupby(["chrom", "start", "end", "strand"])["tool"]
-        .apply(set)
-        .reset_index()
+        df.groupby("cluster")
+        .agg(
+            chrom=("chrom", "first"),
+            start=("start", "median"),  # or min/max/first
+            end=("end", "median"),
+            strand=("strand", "first"),
+            tools=("tool", lambda x: set(x))
+        )
+        .reset_index(drop=True)
     )
+    
+    # grouped = (
+    #     df_union.groupby(["chrom", "start", "end", "strand"])["tool"]
+    #     .apply(set)
+    #     .reset_index()
+    # )
 
     # Convert to list for upsetplot
-    memberships = grouped["tool"].apply(lambda s: tuple(sorted(s)))
+    memberships = grouped["tools"].apply(lambda s: tuple(sorted(s)))
 
 
     # Collapse identical tool sets by counting occurrences
@@ -654,6 +691,53 @@ def plot_upset(base_dir, condition, dataset, output_file):
     plt.savefig(output_file, dpi=300)
     plt.close()
 
+    
+def count_tools(df):
+    df = df.sort_values(["chrom", "strand", "start", "end"]).copy()
+
+    cluster_id = 0
+    clusters = [0]
+
+    for i in range(1, len(df)):
+        prev = df.iloc[i - 1]
+        curr = df.iloc[i]
+
+        same_cluster = (
+            curr["chrom"] == prev["chrom"]
+            and curr["strand"] == prev["strand"]
+            and abs(curr["start"] - prev["start"]) <= TOL
+            and abs(curr["end"] - prev["end"]) <= TOL
+        )
+
+        if not same_cluster:
+            cluster_id += 1
+
+        clusters.append(cluster_id)
+
+    df["cluster"] = clusters
+
+    grouped = (
+        df.groupby("cluster")
+        .agg(
+            chrom=("chrom", "first"),
+            start=("start", "median"),  # or min/max/first
+            end=("end", "median"),
+            strand=("strand", "first"),
+            tools=("tool", lambda x: set(x))
+        )
+        .reset_index(drop=True)
+    )
+    # grouped = (
+    #     df.groupby(["chrom", "start", "end", "strand"])["tool"]
+    #     .nunique()
+    #     .reset_index(name="tool_count")
+    # )
+
+    grouped["tool_count"] = grouped["tools"].apply(len)
+
+    return grouped["tool_count"].value_counts().sort_index()
+
+
 def plot_tool_counts_mirrored(base_dir, dataset, output_file):
     """
     Create a mirrored horizontal bar plot:
@@ -664,13 +748,6 @@ def plot_tool_counts_mirrored(base_dir, dataset, output_file):
     df_total = build_bsj_union(base_dir, condition="total")
     df_polya = build_bsj_union(base_dir, condition="polya")
 
-    def count_tools(df):
-        grouped = (
-            df.groupby(["chrom", "start", "end", "strand"])["tool"]
-            .nunique()
-            .reset_index(name="tool_count")
-        )
-        return grouped["tool_count"].value_counts().sort_index()
 
     counts_total = count_tools(df_total)
     counts_polya = count_tools(df_polya)
@@ -730,23 +807,60 @@ def plot_tool_counts_mirrored(base_dir, dataset, output_file):
     plt.savefig(output_file, dpi=300)
     plt.close()
 
+
+def annotate_tools(df):
+    df = df.sort_values(["chrom", "strand", "start", "end"]).copy()
+
+    cluster_id = 0
+    clusters = [0]
+
+    for i in range(1, len(df)):
+        prev = df.iloc[i - 1]
+        curr = df.iloc[i]
+
+        same_cluster = (
+            curr["chrom"] == prev["chrom"]
+            and curr["strand"] == prev["strand"]
+            and abs(curr["start"] - prev["start"]) <= TOL
+            and abs(curr["end"] - prev["end"]) <= TOL
+        )
+
+        if not same_cluster:
+            cluster_id += 1
+
+        clusters.append(cluster_id)
+
+    df["cluster"] = clusters
+
+    cluster_info = (
+        df.groupby("cluster")
+        .agg(
+            tool_count=("tool", "nunique"),
+            tools=("tool", lambda x: set(x)),
+        )
+        .reset_index()
+    )
+
+    return df.merge(cluster_info, on="cluster")
+
 def compare_to_majority(base_dir, dataset, output_file):
     output_file = os.path.join(PLOT_OUT, output_file)
     df_total = build_bsj_union(base_dir, condition="total")
     df_polya = build_bsj_union(base_dir, condition="polya")
-    majority_total = (
-        df_total.groupby(["chrom", "start", "end", "strand"])["tool"]
-        .nunique()
-        .reset_index(name="tool_count")
-    )
+    # majority_total = (
+    #     df_total.groupby(["chrom", "start", "end", "strand"])["tool"]
+    #     .nunique()
+    #     .reset_index(name="tool_count")
+    # )
 
-    majority_total = majority_total[majority_total["tool_count"] >= 4]
-
-    majority_polya = (
-        df_polya.groupby(["chrom", "start", "end", "strand"])["tool"]
-        .nunique()
-        .reset_index(name="tool_count")
-    )
+    # majority_polya = (
+    #     df_polya.groupby(["chrom", "start", "end", "strand"])["tool"]
+    #     .nunique()
+    #     .reset_index(name="tool_count")
+    # )
+    
+    majority_total = annotate_tools(df_total)
+    majority_polya = annotate_tools(df_polya)
     
     # get all bsjs discovered by at least 3 tools for each lib
     at_leats_2_total = majority_total[majority_total["tool_count"] >= 2]
@@ -758,7 +872,9 @@ def compare_to_majority(base_dir, dataset, output_file):
     at_leats_2_polya.to_csv(f"{out_meta_polya.absolute()}", sep="\t")
     at_leats_2_total.to_csv(f"{out_meta_total.absolute()}", sep="\t")
 
-    df_polya_majority = df_polya.merge(
+    
+    majority_total = majority_total[majority_total["tool_count"] >= 4]
+    df_polya_majority = majority_polya.merge(
         majority_total[["chrom", "start", "end", "strand"]],
         on=["chrom", "start", "end", "strand"],
         how="inner"

@@ -72,7 +72,7 @@ def parse_bed(bed_file_path: str, data_origin: str, use_filer: bool=False):
         elif data_origin == "polya":
             filter_df = CONF_BSJ_POLYA
     
-        # remove any bsj that was not detected by at least 3 tools 
+        # remove any bsj that was not detected by at least 2 tools 
         if filter_df is not None:
             merge_cols = ["chrom", "start", "end", "strand"]
 
