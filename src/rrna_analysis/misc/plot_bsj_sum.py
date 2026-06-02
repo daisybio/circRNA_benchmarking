@@ -52,10 +52,11 @@ df = pd.DataFrame(all_data)
 
 
 name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
+    'circtools': 'circtools',
+    'ciri': 'CIRI',
     'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
+    'find_circ':'find_circ',
+    'circrna_finder':'circRNA_Finder',
     }
 
 name_map_1 = { 'polyA': 'Poly(A)',

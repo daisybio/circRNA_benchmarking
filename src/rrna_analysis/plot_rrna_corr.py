@@ -13,6 +13,14 @@ import seaborn as sns
 
 MAIN_DATA_DIR = sys.argv[1]
 
+NAME_MAP = { 'segemehl': 'Segemehl',
+    'circtools': 'circtools',
+    'ciri': 'CIRI',
+    'circexplorer2': 'CIRCexplorer2',
+    'find_circ':'find_circ',
+    'circrna_finder':'circRNA_Finder'
+}
+
 sns.set_theme(style="ticks", context="paper", palette="colorblind")
 
 tool_order_a = ["total", "polyA"]
@@ -79,13 +87,7 @@ def dumbell_plot(total, polya, output_file):
         }
     )
     
-    name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
-    'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
-    }
-    df['Tool'] = df['Tool'].replace(name_map)
+    df['Tool'] = df['Tool'].replace(NAME_MAP)
 
     df = df.sort_values("Tool", ascending=True)
 
@@ -132,9 +134,9 @@ def dumbell_plot(total, polya, output_file):
     for i, row in df.iterrows():
         y_pos = tool_to_y[row["Tool"]]
         ax.text(row["total_r"], y_pos + 0.14, p_to_stars(row["total_p"]),
-                va="center", ha="right", fontsize=10, fontweight="bold")
+                va="center", ha="right", fontsize=7, fontweight="bold")
         ax.text(row["polya_r"], y_pos + 0.14, p_to_stars(row["polya_p"]),
-                va="center", ha="left", fontsize=10, fontweight="bold")
+                va="center", ha="left", fontsize=7, fontweight="bold")
 
     legend_handles = [
         total_scatter,

@@ -6,10 +6,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 MAIN_DATA_DIR = sys.argv[1]
 RRNA_GTF = sys.argv[2] 
-MAIN_DATA_DIR_ = sys.argv[3]
 
 def run_feature_counts(d_type: str):
-    outdir_prefix = os.path.join(MAIN_DATA_DIR_, d_type, "rrna_reads")
+    outdir_prefix = os.path.join(MAIN_DATA_DIR, d_type, "rrna_reads")
     os.makedirs(outdir_prefix, exist_ok=True)
 
     for dirpath, e, files in os.walk(os.path.join(MAIN_DATA_DIR, d_type, "bam")):
@@ -24,7 +23,7 @@ def run_feature_counts(d_type: str):
             subprocess.run(run_cmd)
 
 def count_rrna_reads(d_type: str):
-    outdir_prefix = os.path.join(MAIN_DATA_DIR_, d_type, "rrna_reads")
+    outdir_prefix = os.path.join(MAIN_DATA_DIR, d_type, "rrna_reads")
     os.makedirs(outdir_prefix, exist_ok=True)
     
     tasks = []

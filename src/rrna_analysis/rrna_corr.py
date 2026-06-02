@@ -15,7 +15,7 @@ import sys
 
 MAIN_DATA_DIR = sys.argv[1]
 OUT_DIR = sys.argv[2]
-USE_FILER = "" if len(sys.argv) < 3 else sys.argv[3]
+USE_FILER = "" if len(sys.argv) < 4 else sys.argv[3]
 DATA_SET = OUT_DIR.split("/")[-1]
 
 CONF_BSJ_POLYA = None
@@ -165,6 +165,8 @@ def compute_corr(bed_paths, origin, use_filer: bool=False):
 
         # compute correlation and significance
         r, p_value = pearsonr(X_corr, Y_corr)
+        print(tool, origin)
+        print(r, p_value)
         correlations[tool] = {"r": r, "p": p_value}
 
     return correlations

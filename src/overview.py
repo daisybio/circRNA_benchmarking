@@ -15,6 +15,13 @@ PLOT_OUT = sys.argv[1]
 os.makedirs(PLOT_OUT, exist_ok=True)
 DATA_DIR = sys.argv[2]
 
+NAME_MAP = { 'segemehl': 'Segemehl',
+    'circtools': 'circtools',
+    'ciri': 'CIRI',
+    'circexplorer2': 'CIRCexplorer2',
+    'find_circ':'find_circ',
+    'circrna_finder':'circRNA_Finder'
+}
 
  
 sns.set_theme(style="ticks", context="paper", palette="colorblind")
@@ -45,7 +52,7 @@ palette = {
     "polya": cb_palette[1],       # keep your green
 }
 
-def run_jaccard_matrix(tools):
+def run_jaccard_matrix(tools, data_dir):
     # Initialize empty DataFrames (rows=tool1, cols=tool2)
     nih_df = pd.DataFrame(index=tools, columns=tools, dtype=float)
     deep_df = pd.DataFrame(index=tools, columns=tools, dtype=float)
@@ -60,14 +67,14 @@ def run_jaccard_matrix(tools):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bedtools jaccard -a ../data/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b ../data/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard -a {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(nih_res[2])  # column 3 = jaccard
             nih_df.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bedtools jaccard -a ../data/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b ../data/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard -a {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(deep_res[2])
@@ -77,14 +84,14 @@ def run_jaccard_matrix(tools):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bedtools jaccard -a ../data/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b ../data/GSE138734/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
+            cmd = f'bedtools jaccard -a {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(nih_res[2])  # column 3 = jaccard
             nih_df_poly.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bedtools jaccard -a ../data/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b ../data/DEEP/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
+            cmd = f'bedtools jaccard -a {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
 
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip().split("\n")[-1].split("\t")
@@ -95,26 +102,21 @@ def run_jaccard_matrix(tools):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bedtools jaccard -a ../data/GSE138734/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b ../data/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard -a {data_dir}/GSE138734/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(nih_res[2])  # column 3 = jaccard
             nih_df_total.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bedtools jaccard -a ../data/DEEP/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b ../data/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard -a {data_dir}/DEEP/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(deep_res[2])
             deep_df_total.loc[tool1, tool2] = jaccard_val
 
     
-    name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
-    'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
-    }
+    name_map = NAME_MAP
     # Apply the mapping to both index and columns
     nih_df = nih_df.rename(index=name_map, columns=name_map)
     deep_df = deep_df.rename(index=name_map, columns=name_map)
@@ -126,7 +128,7 @@ def run_jaccard_matrix(tools):
     return nih_df, deep_df, nih_df_poly, deep_df_poly, nih_df_total, deep_df_total
 
 
-def run_compare_matrix(tools):
+def run_compare_matrix(tools, data_dir):
     # Initialize empty DataFrames (rows=tool1, cols=tool2)
     nih_df = pd.DataFrame(index=tools, columns=tools, dtype=float)
     deep_df = pd.DataFrame(index=tools, columns=tools, dtype=float)
@@ -141,7 +143,7 @@ def run_compare_matrix(tools):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bash  ./util/compare.sh ../data/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed ../data/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bash  ./util/compare.sh {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip()
             print(nih_res)
@@ -151,7 +153,7 @@ def run_compare_matrix(tools):
             nih_df.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bash  ./util/compare.sh ../data/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed ../data/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bash  ./util/compare.sh {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip()
             jaccard_val = float(deep_res)
@@ -161,7 +163,7 @@ def run_compare_matrix(tools):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bash  ./util/compare.sh ../data/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed ../data/GSE138734/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
+            cmd = f'bash  ./util/compare.sh {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip()
             jaccard_val = float(nih_res)  # column 3 = jaccard
@@ -170,7 +172,7 @@ def run_compare_matrix(tools):
             nih_df_poly.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bash  ./util/compare.sh ../data/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed ../data/DEEP/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
+            cmd = f'bash  ./util/compare.sh {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed {data_dir}/DEEP/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip()
             jaccard_val = float(deep_res)
@@ -182,7 +184,7 @@ def run_compare_matrix(tools):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bash  ./util/compare.sh ../data/GSE138734/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed ../data/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bash  ./util/compare.sh {data_dir}/GSE138734/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip()
             jaccard_val = float(nih_res)  # column 3 = jaccard
@@ -191,7 +193,7 @@ def run_compare_matrix(tools):
             nih_df_total.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bash  ./util/compare.sh ../data/DEEP/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed  ../data/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bash  ./util/compare.sh {data_dir}/DEEP/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed  {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip()
             jaccard_val = float(deep_res)
@@ -199,12 +201,7 @@ def run_compare_matrix(tools):
                 jaccard_val = 1
             deep_df_total.loc[tool1, tool2] = jaccard_val
 
-    name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
-    'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
-    }
+    name_map = NAME_MAP
     
     # Apply the mapping to both index and columns
     nih_df = nih_df.rename(index=name_map, columns=name_map)
@@ -428,24 +425,24 @@ def plot_comp_heatmaps(nih_df, deep_df, name):
     plt.savefig(out, dpi = 300)
 
 # I. Plot amount of bsjs in merged beds per dataset
-def plot_merged_all():
-    NIH_polya = pd.read_csv("../data/GSE138734/merged_all/polya/polya_merged_all.bed"
+def plot_merged_all(data_dir = "../data_new"):
+    NIH_polya = pd.read_csv(f"{data_dir}/GSE138734/merged_all/polya/polya_merged_all.bed"
     , sep = "\t", 
     header=None,
     names=["chrom", "start", "end", "random", "scores", "stand"]
     )
-    NIH_total = pd.read_csv("../data/GSE138734/merged_all/total/total_merged_all.bed"
+    NIH_total = pd.read_csv(f"{data_dir}/GSE138734/merged_all/total/total_merged_all.bed"
     , sep = "\t", 
     header=None,
     names=["chrom", "start", "end", "random", "scores", "stand"]
     )
     
-    DEEP_polya = pd.read_csv("../data/DEEP/merged_all/polya/polya_merged_all.bed"
+    DEEP_polya = pd.read_csv(f"{data_dir}/DEEP/merged_all/polya/polya_merged_all.bed"
     , sep = "\t", 
     header=None,
     names=["chrom", "start", "end", "random", "scores", "stand"]
     )
-    DEEP_total = pd.read_csv("../data/DEEP/merged_all/total/total_merged_all.bed"
+    DEEP_total = pd.read_csv(f"{data_dir}/DEEP/merged_all/total/total_merged_all.bed"
     , sep = "\t", 
     header=None,
     names=["chrom", "start", "end", "random", "scores", "stand"]
@@ -521,14 +518,8 @@ def plot_dataset(base_dir, output_file, dataset):
 
     df_counts = pd.DataFrame(counts)
     print(df_counts.head())
-    name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
-    'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ',
-    # 'circrna_finder': 'circrna_finder'
-    }
     
+    name_map = NAME_MAP
     df_counts['tool'] =  df_counts["tool"].replace(name_map)
 
     print(df_counts.head())
@@ -623,12 +614,7 @@ def plot_upset(base_dir, condition, dataset, output_file):
 
     output_file = os.path.join(PLOT_OUT, output_file)
     df_union = build_bsj_union(base_dir, condition=condition)
-    name_map = { 'segemehl': 'Segemehl',
-    'dcc': 'DCC',
-    'ciriquant': 'CIRIquant',
-    'circexplorer2': 'CIRCexplorer2',
-    'find_circ':'find_circ'
-    }
+    name_map = NAME_MAP
     
     df_union['tool'] =  df_union["tool"].replace(name_map)
 
@@ -754,17 +740,7 @@ def compare_to_majority(base_dir, dataset, output_file):
         .reset_index(name="tool_count")
     )
 
-    #name_map = { 'segemehl': 'Segemehl',
-    #'dcc': 'DCC',
-    #'ciriquant': 'CIRIquant',
-    #'circexplorer2': 'CIRCexplorer2',
-    #'find_circ':'find_circ'
-    #}
-    
-    #majority_total['tool'] =  majority_total["tool"].replace(name_map)
-
     majority_total = majority_total[majority_total["tool_count"] >= 4]
-
 
     majority_polya = (
         df_polya.groupby(["chrom", "start", "end", "strand"])["tool"]
@@ -813,58 +789,59 @@ def compare_to_majority(base_dir, dataset, output_file):
 
 
 if __name__ == '__main__':
-    plot_merged_all()
+    main_data_dir = "../data_new"
+    plot_merged_all(data_dir=main_data_dir)
 
-    plot_dataset("../data/GSE138734/merge_concatenated_beds", "NIH_tools.png", "NIH")
-    plot_dataset("../data/DEEP/merge_concatenated_beds", "DEEP_tools.png", "DEEP")
+    plot_dataset(f"{main_data_dir}/GSE138734/merge_concatenated_beds", "NIH_tools.png", "NIH")
+    plot_dataset(f"{main_data_dir}/DEEP/merge_concatenated_beds", "DEEP_tools.png", "DEEP")
 
     plot_upset(
-        base_dir="../data/GSE138734/merge_concatenated_beds",
+        base_dir=f"{main_data_dir}/GSE138734/merge_concatenated_beds",
         condition="polya",
         dataset="NIH",
         output_file="NIH_polya_upset.png"
     )
     plot_upset(
-        base_dir="../data/GSE138734/merge_concatenated_beds",
+        base_dir=f"{main_data_dir}/GSE138734/merge_concatenated_beds",
         condition="total",
         dataset="NIH",
         output_file="NIH_total_upset.png"
     )
     plot_upset(
-        base_dir="../data/DEEP/merge_concatenated_beds",
+        base_dir=f"{main_data_dir}/DEEP/merge_concatenated_beds",
         condition="polya",
         dataset="DEEP",
         output_file="DEEP_polya_upset.png"
     )
     plot_upset(
-        base_dir="../data/DEEP/merge_concatenated_beds",
+        base_dir=f"{main_data_dir}/DEEP/merge_concatenated_beds",
         condition="total",
         dataset="DEEP",
         output_file="DEEP_total_upset.png"
     )
     
     plot_tool_counts_mirrored(
-        base_dir="../data/GSE138734/merge_concatenated_beds",
+        base_dir=f"{main_data_dir}/GSE138734/merge_concatenated_beds",
         dataset="NIH",
         output_file="NIH_tool_intersection.png"
     )
     
     plot_tool_counts_mirrored(
-        base_dir="../data/DEEP/merge_concatenated_beds",
+        base_dir=f"{main_data_dir}/DEEP/merge_concatenated_beds",
         dataset="DEEP",
         output_file="DEEP_tool_intersection.png"
     )
 
-    compare_to_majority("../data/DEEP/merge_concatenated_beds", "DEEP", "DEEP_gt.png")
-    compare_to_majority("../data/GSE138734/merge_concatenated_beds", "GSE138734", "NIH_gt.png")
+    compare_to_majority(f"{main_data_dir}/DEEP/merge_concatenated_beds", "DEEP", "DEEP_gt.png")
+    compare_to_majority(f"{main_data_dir}/GSE138734/merge_concatenated_beds", "GSE138734", "NIH_gt.png")
 
-    tools = ["circexplorer2", "dcc", "segemehl", "ciriquant", "find_circ", "circrna_finder"] 
-    n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools)
+    tools = ["circexplorer2", "circtools", "segemehl", "ciri", "find_circ", "circrna_finder"] 
+    n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools, "../data_new")
     plot_jaccard_heatmaps(n,d, "polyA vs Total")
     plot_jaccard_heatmaps(n_p,d_p, "polyA")
     plot_jaccard_heatmaps(n_t,d_t, "total")
     
-    n, d, n_p, d_p, n_t, d_t  =  run_compare_matrix(tools)
+    n, d, n_p, d_p, n_t, d_t  =  run_compare_matrix(tools, "../data_new")
     plot_comp_heatmaps(n,d, "polyA vs Total")
     plot_comp_heatmaps(n_p,d_p, "polyA")
     plot_comp_heatmaps(n_t,d_t, "total")
