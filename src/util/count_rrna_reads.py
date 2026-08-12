@@ -22,7 +22,7 @@ def run_feature_counts(d_type: str):
             run_cmd = [ "featureCounts", "-p", "--countReadPairs", "-M", "--fraction", "-a", RRNA_GTF, "-o", sample_out, "-t", "exon", "-g", "gene_id", "-T", "4", path_to_sample, ]
             subprocess.run(run_cmd)
 
-def count_rrna_reads(d_type: str):
+def count_all_rrna_reads(d_type: str):
     outdir_prefix = os.path.join(MAIN_DATA_DIR, d_type, "rrna_reads")
     os.makedirs(outdir_prefix, exist_ok=True)
     
@@ -77,5 +77,5 @@ def count_rrna_reads(d_type: str):
 if __name__ == "__main__":
     #run_feature_counts("total")
     #run_feature_counts("polya")
-    count_rrna_reads("total")
-    count_rrna_reads("polya")
+    count_all_rrna_reads("total")
+    count_all_rrna_reads("polya")
