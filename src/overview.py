@@ -221,20 +221,6 @@ def plot_jaccard_heatmaps(nih_df, deep_df, name):
     # NIH heatmap
     sns.heatmap(
         nih_df.astype(float), 
-        ax=axes[0], 
-        cmap="viridis", 
-        annot=True, 
-        fmt=".3f", 
-        cbar=True,
-        vmin=0,
-        vmax=1
-
-    )
-    axes[0].set_title(f"Jaccard Index (GSE138734, {name})")
-
-    # DEEP heatmap
-    sns.heatmap(
-        deep_df.astype(float), 
         ax=axes[1], 
         cmap="viridis", 
         annot=True, 
@@ -244,7 +230,21 @@ def plot_jaccard_heatmaps(nih_df, deep_df, name):
         vmax=1
 
     )
-    axes[1].set_title(f"Jaccard Index (DEEP, {name})")
+    axes[1].set_title(f"Jaccard Index (GSE138734, {name})")
+
+    # DEEP heatmap
+    sns.heatmap(
+        deep_df.astype(float), 
+        ax=axes[0], 
+        cmap="viridis", 
+        annot=True, 
+        fmt=".3f", 
+        cbar=True,
+        vmin=0,
+        vmax=1
+
+    )
+    axes[0].set_title(f"Jaccard Index (DEEP, {name})")
 
     name = name.replace(" ", "_")
     if name == "polyA_vs_Total":
@@ -377,20 +377,6 @@ def plot_comp_heatmaps(nih_df, deep_df, name):
     # NIH heatmap
     sns.heatmap(
         nih_df.astype(float), 
-        ax=axes[0], 
-        cmap="viridis", 
-        annot=True, 
-        fmt=".3f", 
-        cbar=True,
-        vmin=0,
-        vmax=1
-
-    )
-    axes[0].set_title(f"Percentage of Overlapping BSJ \n Between BED Files (GSE138734, {name})")
-
-    # DEEP heatmap
-    sns.heatmap(
-        deep_df.astype(float), 
         ax=axes[1], 
         cmap="viridis", 
         annot=True, 
@@ -400,7 +386,21 @@ def plot_comp_heatmaps(nih_df, deep_df, name):
         vmax=1
 
     )
-    axes[1].set_title(f"Percentage of Overlapping BSJ \n Between BED Files (DEEP, {name})")
+    axes[1].set_title(f"Percentage of Overlapping BSJ \n Between BED Files (GSE138734, {name})")
+
+    # DEEP heatmap
+    sns.heatmap(
+        deep_df.astype(float), 
+        ax=axes[0], 
+        cmap="viridis", 
+        annot=True, 
+        fmt=".3f", 
+        cbar=True,
+        vmin=0,
+        vmax=1
+
+    )
+    axes[0].set_title(f"Percentage of Overlapping BSJ \n Between BED Files (DEEP, {name})")
 
     name = name.replace(" ", "_")
     if name == "polyA_vs_Total":
@@ -862,7 +862,7 @@ def compare_to_majority(base_dir, dataset, output_file):
     majority_total = annotate_tools(df_total)
     majority_polya = annotate_tools(df_polya)
     
-    # get all bsjs discovered by at least 3 tools for each lib
+    # get all bsjs discovered by at least 2 tools for each lib
     at_leats_2_total = majority_total[majority_total["tool_count"] >= 2]
     at_leats_2_polya = majority_polya[majority_polya["tool_count"] >= 2]
 
@@ -952,12 +952,12 @@ if __name__ == '__main__':
     compare_to_majority(f"{main_data_dir}/GSE138734/merge_concatenated_beds", "GSE138734", "NIH_gt.png")
 
     tools = ["circexplorer2", "circtools", "segemehl", "ciri", "find_circ", "circrna_finder"] 
-    n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools, "../data_new")
-    plot_jaccard_heatmaps(n,d, "polyA vs Total")
-    plot_jaccard_heatmaps(n_p,d_p, "polyA")
-    plot_jaccard_heatmaps(n_t,d_t, "total")
+    n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools, main_data_dir)
+    plot_jaccard_heatmaps(n,d, "Poly(A) vs Total")
+    plot_jaccard_heatmaps(n_p,d_p, "Poly(A)")
+    plot_jaccard_heatmaps(n_t,d_t, "Total")
     
-    n, d, n_p, d_p, n_t, d_t  =  run_compare_matrix(tools, "../data_new")
-    plot_comp_heatmaps(n,d, "polyA vs Total")
-    plot_comp_heatmaps(n_p,d_p, "polyA")
-    plot_comp_heatmaps(n_t,d_t, "total")
+    n, d, n_p, d_p, n_t, d_t  =  run_compare_matrix(tools, main_data_dir)
+    plot_comp_heatmaps(n,d, "Poly(A) vs Total")
+    plot_comp_heatmaps(n_p,d_p, "Poly(A)")
+    plot_comp_heatmaps(n_t,d_t, "Total")
