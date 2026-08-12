@@ -133,10 +133,17 @@ def dumbell_plot(total, polya, output_file):
     # Annotate significance
     for i, row in df.iterrows():
         y_pos = tool_to_y[row["Tool"]]
-        ax.text(row["total_r"], y_pos + 0.14, p_to_stars(row["total_p"]),
-                va="center", ha="right", fontsize=7, fontweight="bold")
-        ax.text(row["polya_r"], y_pos + 0.14, p_to_stars(row["polya_p"]),
-                va="center", ha="left", fontsize=7, fontweight="bold")
+        if row["total_r"] < row["polya_r"]:
+            ax.text(row["total_r"], y_pos + 0.16, p_to_stars(row["total_p"]),
+                    va="center", ha="right", fontsize=7, fontweight="bold")
+            ax.text(row["polya_r"], y_pos + 0.16, p_to_stars(row["polya_p"]),
+                    va="center", ha="left", fontsize=7, fontweight="bold")
+        else:
+            ax.text(row["total_r"], y_pos + 0.16, p_to_stars(row["total_p"]),
+                    va="center", ha="left", fontsize=7, fontweight="bold")
+            ax.text(row["polya_r"], y_pos + 0.16, p_to_stars(row["polya_p"]),
+                    va="center", ha="right", fontsize=7, fontweight="bold")
+            
 
     legend_handles = [
         total_scatter,
@@ -145,7 +152,7 @@ def dumbell_plot(total, polya, output_file):
                markersize=12, label='p<0.05 (*) / p<0.01 (**) / p<0.001 (***)')
     ]
 
-    ax.set_xlabel("Pearson Correlation", fontsize=15)
+    ax.set_xlabel("Spearman Correlation", fontsize=15)
     ax.set_title(f"{dataset_name}",
                  fontsize=13, fontweight="bold")
     ax.grid(axis="x", linestyle="--", alpha=0.7)
