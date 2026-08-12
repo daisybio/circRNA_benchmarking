@@ -7,7 +7,9 @@ import os
 import pandas as pd
 import seaborn as sns
 
-from scipy.stats import pearsonr
+import statsmodels.api as sm
+
+from scipy.stats import pearsonr, spearmanr, zscore
 from pathlib import Path
 import sys
 
@@ -138,36 +140,22 @@ def compute_corr(bed_paths, origin, use_filer: bool=False):
     for tool in tools:
         X = []
         Y = []
+
         for sample in bsj_samples:
-            X.append((bsj_dict[tool][sample], sample))
-            rrna_fraction = (RRNA_READS_AMOUNT[sample] / READS_AMOUNT[sample]) 
-            Y.append((rrna_fraction, sample))
+            bsj = bsj_dict[tool][sample]
+            rrna_frac = RRNA_READS_AMOUNT[sample] / READS_AMOUNT[sample]
 
-        # here we sort tupes of X (num_bsj_reads, sample) by num_bsj_reads and
-        # apply same (sample based) order to Y
-        # then we can check for linear relation ship
-        X_sorted = sorted(X, key=lambda x: x[0])
-        sorted_samples = [sample for _, sample in X_sorted]
-        Y_sorted = [next(y for y in Y if y[1] == sample) for sample in sorted_samples]
+            X.append(rrna_frac)
+            Y.append(bsj)
 
-        # last sanity check
-        X_corr = []
-        Y_corr = []
-        for i in range(len(X_sorted)):
-            if X_sorted[i][1] != Y_sorted[i][1]:
-                print("Order of samples incorrect. Can't calculate correlation")
-                print(f"X: {X_sorted}")
-                print(f"Y: {Y_sorted}")
-                exit(1)
-            X_corr.append(X_sorted[i][0])
-            Y_corr.append(Y_sorted[i][0])
-
+        X = np.array(X)
+        Y = np.array(Y)
 
         # compute correlation and significance
-        r, p_value = pearsonr(X_corr, Y_corr)
-        print(tool, origin)
-        print(r, p_value)
+        # r, p_value = pearsonr(X, Y)
+        r, p_value = spearmanr(X, Y)
         correlations[tool] = {"r": r, "p": p_value}
+
 
     return correlations
 
