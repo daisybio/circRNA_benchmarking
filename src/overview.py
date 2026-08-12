@@ -54,7 +54,7 @@ palette = {
     "polya": cb_palette[1],       # keep your green
 }
 
-def run_jaccard_matrix(tools, data_dir):
+def run_jaccard_matrix(tools, data_dir, strict=""):
     # Initialize empty DataFrames (rows=tool1, cols=tool2)
     nih_df = pd.DataFrame(index=tools, columns=tools, dtype=float)
     deep_df = pd.DataFrame(index=tools, columns=tools, dtype=float)
@@ -69,14 +69,14 @@ def run_jaccard_matrix(tools, data_dir):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bedtools jaccard -a {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard {strict} -a {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(nih_res[2])  # column 3 = jaccard
             nih_df.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bedtools jaccard -a {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard {strict} -a {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(deep_res[2])
@@ -86,14 +86,14 @@ def run_jaccard_matrix(tools, data_dir):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bedtools jaccard -a {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
+            cmd = f'bedtools jaccard {strict} -a {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(nih_res[2])  # column 3 = jaccard
             nih_df_poly.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bedtools jaccard -a {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
+            cmd = f'bedtools jaccard {strict} -a {data_dir}/DEEP/merge_concatenated_beds/polya/{tool1}_filtered_blacklist.polya.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/polya/{tool2}_filtered_blacklist.polya.merged.bed'
 
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip().split("\n")[-1].split("\t")
@@ -104,14 +104,14 @@ def run_jaccard_matrix(tools, data_dir):
     for tool1 in tools:
         for tool2 in tools:
             # NIH run
-            cmd = f'bedtools jaccard -a {data_dir}/GSE138734/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard {strict} -a {data_dir}/GSE138734/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b {data_dir}/GSE138734/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             nih_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(nih_res[2])  # column 3 = jaccard
             nih_df_total.loc[tool1, tool2] = jaccard_val
 
             # DEEP run
-            cmd = f'bedtools jaccard -a {data_dir}/DEEP/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
+            cmd = f'bedtools jaccard {strict} -a {data_dir}/DEEP/merge_concatenated_beds/total/{tool1}_filtered_blacklist.total.merged.bed -b {data_dir}/DEEP/merge_concatenated_beds/total/{tool2}_filtered_blacklist.total.merged.bed'
             proc = subprocess.run(cmd, shell=True, check=True, capture_output=True, text=True)
             deep_res = proc.stdout.strip().split("\n")[-1].split("\t")
             jaccard_val = float(deep_res[2])
@@ -151,6 +151,7 @@ def run_compare_matrix(tools, data_dir):
             print(nih_res)
             jaccard_val = float(nih_res)  # column 3 = jaccard
             if jaccard_val > 1: # hard cap at 1 since some times merging A and B results in smaller file then intersection A B
+                print(jaccard_val)
                 jaccard_val = 1
             nih_df.loc[tool1, tool2] = jaccard_val
 
@@ -170,6 +171,7 @@ def run_compare_matrix(tools, data_dir):
             nih_res = proc.stdout.strip()
             jaccard_val = float(nih_res)  # column 3 = jaccard
             if jaccard_val > 1: # hard cap at 1 since some times merging A and B results in smaller file then intersection A B
+                print(jaccard_val)
                 jaccard_val = 1
             nih_df_poly.loc[tool1, tool2] = jaccard_val
 
@@ -191,6 +193,7 @@ def run_compare_matrix(tools, data_dir):
             nih_res = proc.stdout.strip()
             jaccard_val = float(nih_res)  # column 3 = jaccard
             if jaccard_val > 1: # hard cap at 1 since some times merging A and B results in smaller file then intersection A B
+                print(jaccard_val)
                 jaccard_val = 1
             nih_df_total.loc[tool1, tool2] = jaccard_val
 
@@ -609,7 +612,7 @@ def plot_tool_counts(base_dir, condition="polya", dataset="NIH", output_file="to
     plt.close()
 
 
-def plot_upset(base_dir, condition, dataset, output_file):
+def plot_upset(base_dir, condition, dataset, output_file, check_strand=True):
     """
     Create an upset plot showing overlap of BSJs across tools.
     """
@@ -632,10 +635,16 @@ def plot_upset(base_dir, condition, dataset, output_file):
 
         same_cluster = (
             curr["chrom"] == prev["chrom"]
-            and curr["strand"] == prev["strand"]
             and abs(curr["start"] - prev["start"]) <= TOL
             and abs(curr["end"] - prev["end"]) <= TOL
         )
+        if check_strand: 
+            same_cluster = (
+                curr["chrom"] == prev["chrom"]
+                and curr["strand"] == prev["strand"]
+                and abs(curr["start"] - prev["start"]) <= TOL
+                and abs(curr["end"] - prev["end"]) <= TOL
+            )
 
         if not same_cluster:
             cluster_id += 1
@@ -669,6 +678,9 @@ def plot_upset(base_dir, condition, dataset, output_file):
     # Collapse identical tool sets by counting occurrences
     membership_counts = memberships.value_counts()
 
+    membership_counts = membership_counts.sort_values(ascending=False).head(20)
+
+
     # Build upset data
     upset_data = from_memberships(membership_counts.index, data=membership_counts.values)
 
@@ -692,7 +704,7 @@ def plot_upset(base_dir, condition, dataset, output_file):
     plt.close()
 
     
-def count_tools(df):
+def count_tools(df, check_strand=True):
     df = df.sort_values(["chrom", "strand", "start", "end"]).copy()
 
     cluster_id = 0
@@ -704,10 +716,16 @@ def count_tools(df):
 
         same_cluster = (
             curr["chrom"] == prev["chrom"]
-            and curr["strand"] == prev["strand"]
             and abs(curr["start"] - prev["start"]) <= TOL
             and abs(curr["end"] - prev["end"]) <= TOL
         )
+        if check_strand: 
+            same_cluster = (
+                curr["chrom"] == prev["chrom"]
+                and curr["strand"] == prev["strand"]
+                and abs(curr["start"] - prev["start"]) <= TOL
+                and abs(curr["end"] - prev["end"]) <= TOL
+            )
 
         if not same_cluster:
             cluster_id += 1
@@ -749,12 +767,12 @@ def plot_tool_counts_mirrored(base_dir, dataset, output_file):
     df_polya = build_bsj_union(base_dir, condition="polya")
 
 
-    counts_total = count_tools(df_total)
-    counts_polya = count_tools(df_polya)
+    counts_total = count_tools(df_total, check_strand=False)
+    counts_polya = count_tools(df_polya, check_strand=False)
 
 
-    # Align indices so both have 1–5
-    all_idx = range(1, 6)
+    # Align indices so both have 1–6
+    all_idx = range(1, 7)
     counts_total = counts_total.reindex(all_idx, fill_value=0)
     counts_polya = counts_polya.reindex(all_idx, fill_value=0)
 
@@ -775,7 +793,7 @@ def plot_tool_counts_mirrored(base_dir, dataset, output_file):
 
     # Custom x-ticks: show positive values both sides
     # xticks = np.linspace(-max_count, counts_polya.max(), 5, dtype=int)
-    xticks = np.unique(np.concatenate([np.linspace(-max_count, counts_polya.max(), 5, dtype=int), [0]]))
+    xticks = np.unique(np.concatenate([np.linspace(-max_count, counts_polya.max(), 3, dtype=int), [0]]))
     ax.set_xticks(xticks)
     ax.set_xticklabels([abs(x) for x in xticks])
 
@@ -808,7 +826,7 @@ def plot_tool_counts_mirrored(base_dir, dataset, output_file):
     plt.close()
 
 
-def annotate_tools(df):
+def annotate_tools(df, check_strand=True):
     df = df.sort_values(["chrom", "strand", "start", "end"]).copy()
 
     cluster_id = 0
@@ -820,10 +838,16 @@ def annotate_tools(df):
 
         same_cluster = (
             curr["chrom"] == prev["chrom"]
-            and curr["strand"] == prev["strand"]
             and abs(curr["start"] - prev["start"]) <= TOL
             and abs(curr["end"] - prev["end"]) <= TOL
         )
+        if check_strand: 
+            same_cluster = (
+                curr["chrom"] == prev["chrom"]
+                and curr["strand"] == prev["strand"]
+                and abs(curr["start"] - prev["start"]) <= TOL
+                and abs(curr["end"] - prev["end"]) <= TOL
+            )
 
         if not same_cluster:
             cluster_id += 1
@@ -957,7 +981,12 @@ if __name__ == '__main__':
     plot_jaccard_heatmaps(n_p,d_p, "Poly(A)")
     plot_jaccard_heatmaps(n_t,d_t, "Total")
     
-    n, d, n_p, d_p, n_t, d_t  =  run_compare_matrix(tools, main_data_dir)
-    plot_comp_heatmaps(n,d, "Poly(A) vs Total")
-    plot_comp_heatmaps(n_p,d_p, "Poly(A)")
-    plot_comp_heatmaps(n_t,d_t, "Total")
+    n, d, n_p, d_p, n_t, d_t  =  run_jaccard_matrix(tools, main_data_dir, "-s")
+    plot_jaccard_heatmaps(n,d, "Poly(A) vs Total Strict")
+    plot_jaccard_heatmaps(n_p,d_p, "Poly(A) Strict")
+    plot_jaccard_heatmaps(n_t,d_t, "Total Strict")
+    
+    # n, d, n_p, d_p, n_t, d_t  =  run_compare_matrix(tools, main_data_dir)
+    # plot_comp_heatmaps(n,d, "Poly(A) vs Total")
+    # plot_comp_heatmaps(n_p,d_p, "Poly(A)")
+    # plot_comp_heatmaps(n_t,d_t, "Total")

@@ -15,16 +15,18 @@ fileA=$1
 fileB=$2
 
 # Number of overlapping intervals between A and B
-intersections=$(bedtools intersect -u -a "$fileA" -b "$fileB" | wc -l)
+intersections=$(bedtools intersect -u  -a "$fileA" -b "$fileB" | wc -l)
 
 # Create a true union of intervals from both files
 #union_intervals=$(bedtools cat -i "$fileA" "$fileB" |  bedtools merge -i - | wc -l)
 
 union_intervals=$(cat "$fileA" "$fileB" \
                   | sort -k1,1 -k2,2n \
-                  | bedtools merge -i - \
+                  | cut -f1,2,3 \
+                  | uniq \
                   | wc -l)
 
+                #   | bedtools merge -i - \
 
 # Compute the Jaccard-like ratio using total *base pair* coverage, not just interval counts
 echo "scale=4; $intersections / $union_intervals" | bc
